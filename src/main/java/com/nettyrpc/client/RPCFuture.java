@@ -19,13 +19,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by luxiaoxun on 2016-03-15.
  */
 public class RPCFuture implements Future<Object> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RPCFuture.class);
+    private static final Logger logger = LoggerFactory.getLogger(RPCFuture.class);
 
     private Sync sync;
     private RpcRequest request;
     private RpcResponse response;
     private long startTime;
-
     private long responseTimeThreshold = 5000;
 
     private List<AsyncRPCCallback> pendingCallbacks = new ArrayList<AsyncRPCCallback>();
@@ -85,7 +84,7 @@ public class RPCFuture implements Future<Object> {
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
         if (responseTime > this.responseTimeThreshold) {
-            LOGGER.warn("Service response time is too slow. Request id = " + reponse.getRequestId() + ". Response Time = " + responseTime + "ms");
+            logger.warn("Service response time is too slow. Request id = " + reponse.getRequestId() + ". Response Time = " + responseTime + "ms");
         }
     }
 
@@ -136,17 +135,22 @@ public class RPCFuture implements Future<Object> {
         private final int done = 1;
         private final int pending = 0;
 
-        protected boolean tryAcquire(int acquires) {
-            return getState() == done ? true : false;
+        @Override
+        protected boolean tryAcquire(int arg) {
+            return getState() == done;
         }
 
-        protected boolean tryRelease(int releases) {
+        @Override
+        protected boolean tryRelease(int arg) {
             if (getState() == pending) {
                 if (compareAndSetState(pending, done)) {
                     return true;
+                } else {
+                    return false;
                 }
+            } else {
+                return true;
             }
-            return false;
         }
 
         public boolean isDone() {

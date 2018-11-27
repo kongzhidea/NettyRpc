@@ -7,8 +7,9 @@ An RPC framework based on Netty, ZooKeeper and Spring
 * Long lived persistent connection
 * High availability, load balance and failover
 * Service Discovery support by ZooKeeper
-
-#### How to use
+### Design:
+![design](https://images2015.cnblogs.com/blog/434101/201603/434101-20160316102651631-1816064105.png)
+### How to use
 1. Define an interface:
 
 		public interface HelloService { 
@@ -20,6 +21,8 @@ An RPC framework based on Netty, ZooKeeper and Spring
 
 		@RpcService(HelloService.class)
 		public class HelloServiceImpl implements HelloService {
+			public HelloServiceImpl(){}
+			
 			@Override
 			public String hello(String name) {
 				return "Hello! " + name;
@@ -33,9 +36,13 @@ An RPC framework based on Netty, ZooKeeper and Spring
 
 3. Run zookeeper
 
+   For example: zookeeper is running on 127.0.0.1:2181
+
 4. Start server:
 
-		RpcBootstrap
+   Start server with spring: RpcBootstrap
+
+   Start server without spring: RpcBootstrapWithoutSpring
 
 5. Use the client:
  
